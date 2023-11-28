@@ -1,0 +1,31 @@
+delimiter //
+create procedure eliminarSiCero(in id_user varchar(20), in id_product varchar(20))
+begin
+if (SELECT sum(cantidadCompra) FROM carroCompra WHERE id_interno=id_user and producto_id_interno=id_product)<1 then
+DELETE FROM carroCompra where id_interno=id_user and producto_id_interno=id_product;
+else
+UPDATE carroCompra set cantidadCompra=cantidadCompra-1 where id_interno=id_user and producto_id_interno=id_product;
+end if;
+
+if exists (select cantidadCompra from carroCompra where cantidadCompra=0) then
+DELETE FROM carroCompra where cantidadCompra=0 or cantidadCompra<0;
+end if;
+
+end;
+//
+
+delimiter %%
+create procedure alterarCantidad(in cantidad int, in nombreProduct varchar(20), in nombreUsuario varchar(20),in precio int,idproduct varchar(20))
+begin
+if exists (select * FROM carroCompra cross JOIN producto WHERE carroCompra.producto_id_interno=idproduct and cantidadCompra>0 and id_interno=nombreUsuario) then
+update carroCompra set carroCompra.cantidadCompra=carroCompra.cantidadCompra+1 where id_interno=nombreUsuario and  carroCompra.detalle=nombreProduct;
+else
+INSERT into carroCompra (detalle,precioTotal,id_interno,cantidadTotal,producto_id_interno,cantidadCompra) VALUES (nombreProduct,precio, nombreUsuario,cantidad,idproduct,1);
+end if;
+end;
+%%
+
+
+call alterarCantidad(1, 'Interruptor Diferenc', 'f67618a2eaffba8',19490,'1949020I');
+call eliminarSiCero('9c180560ab4d1da','8499018B');
+
